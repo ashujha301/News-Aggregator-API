@@ -1,2 +1,5 @@
+#Ignore Node.js modules
 /node_modules
-/.env
+
+#Ignore environment files
+.env
