@@ -8,6 +8,7 @@ const app = express();
 require("dotenv").config();
 
 let port = process.env.PORT || 3000;
+let news_api = process.env.NEWS_API_KEY || ce6e2cf8d71a4ef78cdc8cefe6f3b286;
 
 //Body parsing middleware
 app.use(express.json());
@@ -108,6 +109,55 @@ app.get('/preferences', verifyToken, async (req, res) => {
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
+
+//-------------------------------------------------------XXXX---------------------------------------------------------------------------------
+//Update the preferences of the logged in user
+
+app.put('/preferences',verifyToken, async (req,res) =>{
+  try {
+    let preferencesPassed = req.body.preferences;
+
+    if(!preferencesPassed){
+      return res.status(400).json({message: "preferences not provided"});
+    }
+
+    const updatedPreference = await User.findByIdAndUpdate(req.user.userId,{preferences: preferencesPassed},{new:true});
+
+    if(!updatedPreference){
+      return res.status(400).json({message: "User not found"});
+    }
+
+    return res.status(200).json({message: "Preferences updated successfully",user: updatedPreference});
+  } catch (err) {
+    return res.status(500).json({message: "Internal server error" , error: err});
+  }
+
+});
+
+//-------------------------------------------------------XXXX---------------------------------------------------------------------------------
+//GET all the preference news of the logged in user
+app.get('/news', verifyToken, async (req, res) => {
+  try {
+    // Define the News API endpoint and parameters
+    const apiUrl = 'https://newsapi.org/v2/top-headlines';
+    const params = {
+      apiKey: news_api,
+      country: 'in', 
+      category: 'general',
+    };
+
+    // Make the request to the News API
+    const response = await axios.get(apiUrl, { params });
+
+    // Extract and send the news articles in the response
+    const articles = response.data.articles;
+    res.status(200).json({ news: articles });
+  } catch (err) {
+    console.error('Error fetching news:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 
 
 
