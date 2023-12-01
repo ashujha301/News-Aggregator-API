@@ -29,4 +29,7 @@ var userSchema = new Schema({
     }
 });
 
+// Create an index on the 'email' field
+userSchema.index({ email: 1 });
+
 module.exports = mongoose.model('User',userSchema);
