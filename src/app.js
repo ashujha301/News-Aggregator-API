@@ -38,6 +38,7 @@ app.post("/register", async (req, res) => {
       email: req.body.email,
       role: req.body.role,
       password: bcrypt.hashSync(req.body.password, 8),
+      preferences: req.body.preferences || [],
     });
 
     const savedUser = await user.save();
@@ -95,7 +96,20 @@ app.post("/login", (req, res) => {
 });
 
 //-------------------------------------------------------XXXX---------------------------------------------------------------------------------
-//
+// Retrieve news preferences for the logged-in user
+app.get('/preferences', verifyToken, async (req, res) => {
+  try {
+    // Fetch user preferences from the database based on req.user.userId
+    const userPreferences = await User.findById(req.user.userId, 'preferences');
+
+    return res.status(200).json({ preferences: userPreferences.preferences });
+  } catch (err) {
+    console.error('Error retrieving preferences:', err);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
 
 app.listen(port, (err) => {
   if (err) {
