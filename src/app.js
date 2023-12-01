@@ -8,7 +8,7 @@ const app = express();
 require("dotenv").config();
 
 let port = process.env.PORT || 3000;
-let news_api = process.env.NEWS_API_KEY || ce6e2cf8d71a4ef78cdc8cefe6f3b286;
+let news_api = process.env.NEWS_API_KEY ;
 
 //Body parsing middleware
 app.use(express.json());
