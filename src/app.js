@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const axios = require('axios'); 
 const User = require("./model/user");
 const verifyToken = require('./middeware/verifytoken');
 const app = express();
@@ -138,18 +139,24 @@ app.put('/preferences',verifyToken, async (req,res) =>{
 //GET all the preference news of the logged in user
 app.get('/news', verifyToken, async (req, res) => {
   try {
+    // Fetch user preferences from the database based on req.user.userId
+    const userPreferences = await User.findById(req.user.userId, 'preferences');
+
+    if (!userPreferences) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
     // Define the News API endpoint and parameters
     const apiUrl = 'https://newsapi.org/v2/top-headlines';
     const params = {
       apiKey: news_api,
-      country: 'in', 
-      category: 'general',
+      country: 'in',
+      category: userPreferences.preferences.join(','),
     };
 
     // Make the request to the News API
     const response = await axios.get(apiUrl, { params });
 
-    // Extract and send the news articles in the response
     const articles = response.data.articles;
     res.status(200).json({ news: articles });
   } catch (err) {
